@@ -13,6 +13,7 @@ const Home = () => {
   const [fromFull, setFromFull] = useState('')
   const [toFull, setToFull] = useState('')
   const [showResult, setShowResult] = useState(false)
+  const [showError, setShowError]=useState(false)
   const host = 'api.frankfurter.app';
   useEffect(() => {
     fetch(`https://${host}/currencies`)
@@ -29,12 +30,23 @@ const Home = () => {
       fromCurrencies,
       toCurrencies
     }
-    const value =
-      await axios.get(`http://localhost:9000/exchange/${amount},${fromCurrencies},${toCurrencies}`)
-    console.log(value.data.amount)
-    setResult((value.data.rates[toCurrencies]))
+    // const value =
+    //   await axios.get(`http://localhost:9000/exchange/${amount},${fromCurrencies},${toCurrencies}`)
+    if (fromCurrencies===toCurrencies){
+      setShowError(true)
+    }else{
+      
+    
+    fetch(`https://${host}/latest?amount=${amount}&from=${fromCurrencies}&to=${toCurrencies}`)
+    .then(resp => resp.json())
+    .then((data) => {
+    console.log(data.amount)
+    setResult((data.rates[toCurrencies]))
     setShowResult(true)
-  }
+  })
+}
+}
+
   function changeTo(data) {
     setShowToList(!showToList)
     setToCurrencies(data[0])
@@ -70,8 +82,8 @@ const Home = () => {
                       <div   >
                         <button type='button' className='form-select ' style={{ height: "40px" }} value={fromCurrencies} onClick={() => setShowFromList(true)} >{fromCurrencies}</button>
                         {showFromList &&
-                          <div className='card py-2  position-absolute z-3' style={{ maxHeight: '300px', overflowY: 'scroll' }}>
-                            <ul>
+                          <div className='card py-2  position-absolute z-3 zindex-dropdown' style={{ maxHeight: '300px', overflowY: 'scroll' }}>
+                            <ul >
                               {listCurrencies.map((data, index) => {
                                 return (
                                   <li type='button' className='px-2 py-1 select' onClick={() => changeFrom(data)} value={data}  >{data[0]} - {data[1]}</li>
@@ -83,7 +95,7 @@ const Home = () => {
                         }
                       </div>
                     </div>
-                    <div className="col-md-3 position-relative ">
+                    <div className="col-md-3  ">
                       <label className='fs-6 fw-bold'>To</label>
                       <div id={listCurrencies[1]}  >
                         <button type='button' className='form-select ' style={{ height: "40px" }} value={toCurrencies} onClick={() => setShowToList(true)} >{toCurrencies}</button>
@@ -110,6 +122,9 @@ const Home = () => {
                         <p>1 {fromFull} = {(result / amount).toFixed(4)} {toFull}</p>
                         <p>1 {toFull} = {((amount / result).toFixed(4))} {fromFull}</p>
                       </div>
+                    }
+                    {showError&&
+                    <h3 className='text-danger'>Don`t Select Same in both fields {fromCurrencies}</h3>
                     }
                   </div>
                 </form>
