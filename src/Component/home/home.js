@@ -43,6 +43,7 @@ const Home = () => {
     console.log(data.amount)
     setResult((data.rates[toCurrencies]))
     setShowResult(true)
+    setShowError(false)
   })
 }
 }
